@@ -84,7 +84,13 @@ module Zipline
         if file[:url]
           the_remote_uri = URI(file[:url])
 
-          Net::HTTP.get_response(the_remote_uri) do |response|
+          http = Net::HTTP.new(the_remote_uri.host, the_remote_uri.port)
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+          request = Net::HTTP::Get.new(the_remote_uri.request_uri)
+
+          http.request(request) do |response|
             response.read_body do |chunk|
               writer_for_file << chunk
             end
